@@ -1,0 +1,87 @@
+package imageCrawler;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.net.URL;
+import java.nio.channels.FileChannel;
+
+public class CrawlImages {
+/**
+ * method to get image from the given link
+ * @param id
+ * @param name
+ * @param link
+ * @param path
+ * @param file
+ */
+	public void getImageFromLink(String id, String name, String link, String path, String file){
+	
+	String outputPath = "your path to output image";
+	try {
+		URL url = new URL(link);
+		InputStream in = new BufferedInputStream(url.openStream());
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buf = new byte[1024];
+		int n = 0;
+		while (-1!=(n=in.read(buf)))
+		{
+		   out.write(buf, 0, n);
+		}
+		out.close();
+		in.close();
+		byte[] response = out.toByteArray();
+		FileOutputStream fos;
+		
+		fos = new FileOutputStream(outputPath);
+		fos.write(response);
+		fos.close();
+	} catch (IOException e1) {
+		e1.printStackTrace();
+		//code segment to put a dummy image if image is not found at the available link 
+		File source=new File("path to dummy image");
+		File destination=new File(outputPath);
+
+		try {
+			copyFile(source,destination);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
+	/**
+	 * method to copy file from one directory to another
+	 * @param sourceFile
+	 * @param destFile
+	 * @throws IOException
+	 */
+	 public static void copyFile(File sourceFile, File destFile) throws IOException {
+	     if(!destFile.exists()) {
+	      destFile.createNewFile();
+	     }
+
+	     FileChannel source = null;
+	     FileChannel destination = null;
+	     try {
+	      source = new RandomAccessFile(sourceFile,"rw").getChannel();
+	      destination = new RandomAccessFile(destFile,"rw").getChannel();
+
+	      long position = 0;
+	      long count    = source.size();
+
+	      source.transferTo(position, count, destination);
+	     }
+	     finally {
+	      if(source != null) {
+	       source.close();
+	      }
+	      if(destination != null) {
+	       destination.close();
+	      }
+	    }
+	 }
+}
